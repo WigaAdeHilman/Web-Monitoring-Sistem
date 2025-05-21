@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Monitoring Sistem</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 space-y-6">
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-bold flex items-center gap-2">
+                <i class="fas fa-server text-blue-600 pulse-icon"></i> Web Monitoring Sistem
+            </h1>
+            <label class="flex items-center gap-2">
+                <i class="fas fa-clock text-blue-600"></i> Refresh Interval:
+                <select id="intervalSelect" class="border rounded p-1">
+                    <option value="1">1 detik</option>
+                    <option value="3" selected>3 detik</option>
+                    <option value="5">5 detik</option>
+                    <option value="10">10 detik</option>
+                </select>
+            </label>
+        </div>
+
+        <!-- 📊 Dashboard Status Summary -->
+        <div class="bg-white p-4 rounded shadow-lg border-l-4 border-blue-500">
+            <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
+                <i class="fas fa-tachometer-alt text-blue-600"></i> Dashboard Sistem
+            </h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- Status Umum & Uptime -->
+                <div class="md:w-1/3 p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-inner">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div id="status-indicator" class="w-4 h-4 rounded-full bg-green-500 pulse-status"></div>
+                        <h3 class="text-xl font-bold" id="system-status">Sistem Normal</h3>
+                    </div>
+                    <div id="status-details" class="text-sm mb-3 text-gray-600">
+                        Semua komponen berjalan optimal
+                    </div>
+                    <div class="mb-2 text-sm flex items-center">
+                        <i class="fas fa-stopwatch text-purple-600 mr-2"></i>
+                        <span>Uptime: <span id="system-uptime" class="font-semibold">Menghitung...</span></span>
+                    </div>
+                    <div class="text-sm flex items-center">
+                        <i class="fas fa-power-off text-green-600 mr-2"></i>
+                        <span>Boot: <span id="system-boottime" class="font-semibold">Menghitung...</span></span>
+                    </div>
+                </div>
+                
+                <!-- Resource Meters -->
+                <div class="md:w-1/3 flex flex-col gap-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="resource-stat flex items-center p-2 rounded bg-red-50">
+                            <div class="mr-2">
+                                <i class="fas fa-microchip text-red-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-600">CPU</div>
+                                <div class="flex items-center gap-2">
+                                    <div id="dashboard-cpu-usage" class="font-bold">0%</div>
+                                    <div id="dashboard-cpu-temp" class="text-xs">0°C</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-stat flex items-center p-2 rounded bg-blue-50">
+                            <div class="mr-2">
+                                <i class="fas fa-memory text-blue-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-600">RAM</div>
+                                <div class="flex items-center gap-2">
+                                    <div id="dashboard-ram-usage" class="font-bold">0%</div>
+                                    <div id="dashboard-ram-free" class="text-xs">0 GB</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-stat flex items-center p-2 rounded bg-yellow-50">
+                            <div class="mr-2">
+                                <i class="fas fa-hdd text-yellow-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-600">DISK</div>
+                                <div class="flex items-center gap-2">
+                                    <div id="dashboard-disk-usage" class="font-bold">0%</div>
+                                    <div id="dashboard-disk-free" class="text-xs">0 GB</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-stat flex items-center p-2 rounded bg-purple-50">
+                            <div class="mr-2">
+                                <i class="fas fa-gamepad text-purple-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-600">GPU</div>
+                                <div class="flex items-center gap-2">
+                                    <div id="dashboard-gpu-usage" class="font-bold">0%</div>
+                                    <div id="dashboard-gpu-temp" class="text-xs">0°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="resource-stat flex items-center p-2 rounded bg-teal-50 flex-1">
+                            <div class="mr-2">
+                                <i class="fas fa-exchange-alt text-teal-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-xs text-gray-600">NETWORK</div>
+                                <div class="flex flex-wrap text-xs">
+                                    <span class="mr-2"><i class="fas fa-arrow-down text-blue-500"></i> <span id="dashboard-network-download">0 MB/s</span></span>
+                                    <span><i class="fas fa-arrow-up text-green-500"></i> <span id="dashboard-network-upload">0 MB/s</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Heavy Process & Recommendations -->
+                <div class="md:w-1/3 p-2 bg-gray-50 rounded-lg shadow-inner">
+                    <div>
+                        <h4 class="text-sm font-bold mb-1 flex items-center">
+                            <i class="fas fa-exclamation-triangle text-amber-500 mr-1"></i> Proses Teratas
+                        </h4>
+                        <div id="dashboard-heaviest-process" class="text-sm mb-2 bg-amber-50 p-1 rounded">
+                            Menunggu data...
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold mb-1 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-1"></i> Rekomendasi
+                        </h4>
+                        <ul id="recommendations-list" class="text-xs space-y-1">
+                            <li class="recommendation-item p-1 rounded bg-blue-50">
+                                <i class="fas fa-circle-info text-blue-500 mr-1"></i> Menunggu analisis sistem...
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔋 Battery Status -->
+        <div id="battery-container" class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
+                <i id="battery-base-icon" class="fas fa-battery-half text-green-600 battery-icon"></i> Status Baterai
+            </h2>
+            <div class="flex items-center">
+                <div id="battery-icon-container" class="w-1/4 text-center relative">
+                    <i id="battery-icon" class="fas fa-battery-half text-5xl text-green-500"></i>
+                    <div id="battery-charging" class="hidden absolute top-0 right-0">
+                        <i class="fas fa-bolt text-yellow-500 text-2xl battery-charging-icon"></i>
+                    </div>
+                </div>
+                <div class="w-3/4">
+                    <div class="flex justify-between mb-1">
+                        <span>Level Baterai:</span>
+                        <span id="battery-percent-text">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-300 rounded-full h-4 mb-4">
+                        <div id="battery-bar" class="h-4 rounded-full text-xs text-white text-center bg-green-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between">
+                        <div id="battery-status" class="text-sm">Status: Mendeteksi...</div>
+                        <div id="battery-time" class="text-sm">Sisa Waktu: -</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔥 CPU Usage -->
+        <div class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">
+                <i class="fas fa-microchip text-red-600 cpu-icon"></i> CPU Usage
+            </h2>
+            <div class="h-[200px]">
+                <canvas id="cpuChart" class="w-full h-full"></canvas>
+            </div>
+            <div class="w-full bg-gray-300 rounded-full h-6 mt-2">
+                <div id="cpu-bar" class="h-6 rounded-full text-sm text-white text-center leading-6 bg-green-500" style="width: 0%">0%</div>
+            </div>
+            <p class="mt-2">
+                <i class="fas fa-thermometer-half text-red-500"></i> Suhu CPU: <span id="cpu-temp">N/A</span>
+            </p>
+        </div>
+
+        <!-- 🎮 GPU Usage -->
+        <div class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">
+                <i class="fas fa-gamepad text-purple-600 gpu-icon"></i> GPU Usage
+            </h2>
+            <div class="h-[200px]">
+                <canvas id="gpuChart" class="w-full h-full"></canvas>
+            </div>
+            <div class="w-full bg-gray-300 rounded-full h-6 mt-2">
+                <div id="gpu-bar" class="h-6 rounded-full text-sm text-white text-center leading-6 bg-green-500" style="width: 0%">0%</div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                <div class="bg-gray-100 p-2 rounded shadow-inner">
+                    <i class="fas fa-info-circle text-blue-500"></i> Model: <span id="gpu-name">Mendeteksi...</span>
+                </div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">
+                    <i class="fas fa-thermometer-half text-red-500"></i> Suhu: <span id="gpu-temp">N/A</span>
+                </div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">
+                    <i class="fas fa-tachometer-alt text-green-500"></i> Penggunaan: <span id="gpu-usage">0%</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Memory Total: <span id="gpu-mem-total">0 MB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Memory Used: <span id="gpu-mem-used">0 MB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Memory Free: <span id="gpu-mem-free">0 MB</span></div>
+            </div>
+        </div>
+
+        <!-- 🧠 RAM Usage -->
+        <div class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">
+                <i class="fas fa-memory text-blue-600 ram-icon"></i> RAM Usage
+            </h2>
+            <div class="h-[200px]">
+                <canvas id="ramChart" class="w-full h-full"></canvas>
+            </div>
+            <div class="w-full bg-gray-300 rounded-full h-6 mt-2">
+                <div id="ram-bar" class="h-6 rounded-full text-sm text-white text-center leading-6 bg-green-500" style="width: 0%">0%</div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Total: <span id="ram-total">0 GB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Used: <span id="ram-used">0 GB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Free: <span id="ram-free">0 GB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Used: <span id="ram-percent">0%</span></div>
+            </div>
+        </div>
+
+        <!-- 💾 Disk Usage -->
+        <div class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">
+                <i class="fas fa-hdd text-yellow-600 disk-icon"></i> Disk Usage
+            </h2>
+            <div class="h-[200px]">
+                <canvas id="diskChart" class="w-full h-full"></canvas>
+            </div>
+            <div class="w-full bg-gray-300 rounded-full h-6 mt-2">
+                <div id="disk-bar" class="h-6 rounded-full text-sm text-white text-center leading-6 bg-green-500" style="width: 0%">0%</div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Total: <span id="disk-total">0 GB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Used: <span id="disk-used">0 GB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Free: <span id="disk-free">0 GB</span></div>
+                <div class="bg-gray-100 p-2 rounded shadow-inner">Used: <span id="disk-percent">0%</span></div>
+            </div>
+            
+            <!-- Disk I/O -->
+            <div class="mt-4">
+                <h3 class="font-semibold mb-2">
+                    <i class="fas fa-exchange-alt text-blue-500"></i> Disk I/O
+                </h3>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex-1 bg-gray-100 p-3 rounded shadow-inner">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-arrow-down text-green-500 text-xl mr-2 disk-read-icon"></i>
+                            <span class="font-medium">Read Speed:</span>
+                        </div>
+                        <div id="disk-read" class="text-xl font-bold text-green-600">0 MB/s</div>
+                    </div>
+                    <div class="flex-1 bg-gray-100 p-3 rounded shadow-inner">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-arrow-up text-red-500 text-xl mr-2 disk-write-icon"></i>
+                            <span class="font-medium">Write Speed:</span>
+                        </div>
+                        <div id="disk-write" class="text-xl font-bold text-red-600">0 MB/s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🌐 Network Usage -->
+        <div class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">
+                <i class="fas fa-network-wired text-blue-600 network-icon"></i> Status Jaringan
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div class="p-2 rounded">
+                    <i class="fas fa-upload text-green-500"></i> Upload: <span id="net-sent">0 MB</span>
+                </div>
+                <div class="p-2 rounded">
+                    <i class="fas fa-download text-blue-500"></i> Download: <span id="net-recv">0 MB</span>
+                </div>
+                <div class="p-2 rounded">
+                    <i class="fas fa-paper-plane text-yellow-500"></i> Paket Terkirim: <span id="net-packets-sent">0</span>
+                </div>
+                <div class="p-2 rounded">
+                    <i class="fas fa-inbox text-purple-500"></i> Paket Diterima: <span id="net-packets-recv">0</span>
+                </div>
+            </div>
+            <div class="network-activity-container mt-4 p-2 bg-gray-100 rounded-lg h-16 relative overflow-hidden">
+                <div class="absolute top-1 left-2 text-xs text-gray-500">Aktivitas Jaringan:</div>
+                <div id="network-activity" class="h-full mt-2"></div>
+                <div class="flex justify-between text-xs text-gray-500 mt-1 px-2">
+                    <div>Upload: <i class="fas fa-square text-green-500"></i></div>
+                    <div>Download: <i class="fas fa-square text-blue-500"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚙️ Proses Aktif -->
+        <div class="bg-white p-4 rounded shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">
+                <i class="fas fa-tasks text-gray-600"></i> Proses Aktif (Top 10)
+            </h2>
+            <div class="overflow-x-auto">
+                <table id="process-table" class="min-w-full bg-white shadow-md rounded border">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="px-4 py-2">PID</th>
+                            <th class="px-4 py-2">Nama</th>
+                            <th class="px-4 py-2 sortable cursor-pointer" data-key="cpu_percent">
+                                CPU (%) <i class="fas fa-sort text-gray-500 ml-1"></i>
+                            </th>
+                            <th class="px-4 py-2 sortable cursor-pointer" data-key="memory_percent">
+                                Memory (%) <i class="fas fa-sort text-gray-500 ml-1"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <tr><td colspan="4" class="p-4 text-gray-500">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Status koneksi -->
+        <div id="connection-status" class="fixed bottom-5 right-5 p-2 rounded-lg text-white bg-blue-500 hidden">
+            Memuat data...
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+
+    <!-- Footer -->
+    <footer class="text-center text-sm text-gray-500 mt-10 py-4 border-t">
+        &copy; 2025 Wiga Ade Hilman. All rights reserved.
+    </footer>
+
+</body>
+</html>

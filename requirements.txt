@@ -1,0 +1,15 @@
+flask>=2.0.0
+psutil>=5.9.0
+Werkzeug>=2.0.0
+Jinja2>=3.0.0
+MarkupSafe>=2.0.0
+itsdangerous>=2.0.0
+click>=8.0.0
+setuptools>=58.0.0
+# Opsional untuk beberapa fitur platform-spesifik
+# Untuk Windows kompatibilitas
+pywin32>=302; platform_system=="Windows"
+# Untuk logging yang lebih baik
+colorlog>=6.0.0
+# Untuk pengolahan proses tambahan
+py-cpuinfo>=8.0.0
